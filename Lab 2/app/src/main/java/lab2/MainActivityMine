@@ -1,0 +1,189 @@
+package com.example.tobias.lab2;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import android.graphics.Color;
+import android.support.v7.app.ActionBarActivity;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ExpandableListView;
+
+public class MainActivity extends ActionBarActivity {
+
+	ExpandableListView expandableListView;
+	MyExpandableListAdapter myExpandableListAdapter;
+	List<String> groupList;
+	HashMap<String, List<String>> childMap;
+	View tempView = null;
+	EditText topField;
+
+	//EXPERIMENT BUTTON
+	Button expButton;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		
+		init(); // Create everything.
+		topField = (EditText)findViewById(R.id.pathEdit); // Text field up top.
+		expandableListView = (ExpandableListView) findViewById(R.id.mylist);
+		myExpandableListAdapter = new MyExpandableListAdapter(this, groupList, childMap);
+		expandableListView.setAdapter(myExpandableListAdapter);
+
+		expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+			@Override
+			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+				// Show the selected child path in the text field.
+
+				//topField.setText("/" + groupList.get(groupPosition) + "/" + childMap.get(groupList.get(groupPosition)).get(childPosition));
+				topField.setText("/" + myExpandableListAdapter.getGroup(groupPosition).toString() + "/" + myExpandableListAdapter.getChild(groupPosition, childPosition).toString());
+
+
+				// Only highlight one picked child at the time.
+				if (tempView != null) {
+					tempView.setBackgroundColor(Color.WHITE);    // The previous clicked child.
+				}
+				v.setBackgroundColor(Color.GREEN); // Set the background on the view (child) if selected.
+				tempView = v;                       // Overwrite the previous clicked child.
+
+				//Senaste matchande noden är
+
+				return false;
+			}
+		});
+
+		expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+			@Override
+			public void onGroupCollapse(int groupPosition) {
+
+			}
+		});
+
+		expandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+			@Override
+			public void onGroupCollapse(int groupPosition) {
+
+			}
+		});
+
+
+		topField.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				String s = s.toString;
+
+				// SÄTT DESSA HÖGST UPP SEN NÄR SNYGGAR TILL KODEN.
+				String groupName = "";
+				String childName = "";
+				String [] paths;
+
+
+				// Split the character sequence into two strings to allow path comparisons later.
+				if(s.contains("/")){
+					paths = s.split("/", 2); // Returns 2 strings. Fult med hårdkod, kan lägga kanske nåt som räknar antal "/" i strängen.
+					groupName = paths[0];
+					childName = paths[1];
+					if(paths[0].equals("")){	// Ful lösning, kan inte sätta de = "" för då expandar alla groups.
+						groupName = "....";
+					}
+				}
+				else if(s.equals("")){
+					groupName = "...";	// Ful lösning. Samma som ovan.
+				}
+				else{
+					groupName = s;
+				}
+
+				for(int i = 0; i < myExpandableListAdapter.getGroupCount(); i++){
+					if(myExpandableListAdapter.getGroup(i).toString().equals(groupName) || myExpandableListAdapter.getGroup(i).toString().contains(groupName)){ // Gör nåt för att ignorera versaler.
+						expandableListView.expandGroup(i);	// Expand the list here to display the children.
+
+						for(int j = 0; j < myExpandableListAdapter.getChildrenCount(i); j++){
+							if(myExpandableListAdapter.getChild(i, j).toString().equals(childName) || myExpandableListAdapter.getChild(i, j).toString().contains(childName)){
+								// Color the selected child.
+								// Hur får man tag i viewen?
+								//expandableListView.expandGroup(2);	// Debug
+							}
+						}
+					}
+				}
+
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+
+			}
+		});
+
+
+
+
+		// körs varje sekund
+		// ta typ topField.getText(), eller behövs inte, ta myExpandableListAdapter.getGroup osv.
+		/* switch(myExpandableListAdapter.getGroup(groupPosition)):
+			1: for(int i = 0; i< myExpandableListAdapter.getChildCount; i++)
+					if(i == childPosition)
+						//Highlight the text
+		 */
+	}
+
+
+	private void init() {
+		groupList = new ArrayList<String>();
+		childMap = new HashMap<String, List<String>>();
+
+		List<String> groupList0 = new ArrayList<String>(); // Den mindre listan med tex filmtitlar.
+		groupList0.add("The Note Book 1");
+		groupList0.add("The Note Book 2");
+		groupList0.add("The Note Book 3");
+		groupList0.add("The Note Book 4");
+
+		List<String> groupList1 = new ArrayList<String>();
+		groupList1.add("Green1");
+		groupList1.add("Yellow1");
+		groupList1.add("Red1");
+		groupList1.add("Blue1");
+
+		List<String> groupList2 = new ArrayList<String>();
+		groupList2.add("Green2");
+		groupList2.add("Yellow2");
+		groupList2.add("Red2");
+		groupList2.add("Blue2");
+
+		groupList.add("Light");
+		groupList.add("Medium");
+		groupList.add("Dark");
+
+		childMap.put(groupList.get(0), groupList0);
+		childMap.put(groupList.get(1), groupList1);
+		childMap.put(groupList.get(2), groupList2);
+
+
+
+		// Experiment button.
+		expButton = (Button)findViewById(R.id.expButton);
+		expButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				/*EditText tmpText = (EditText)findViewById(R.id.pathEdit);
+				EditText tmpText = "lalallalalalal";
+				tmpText.setEnabled(!tmpText.isEnabled());*/
+				expandableListView.expandGroup(2);
+			}
+		});
+	}
+}
+
